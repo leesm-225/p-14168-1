@@ -15,6 +15,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.stream.Collectors;
+
 @Controller
 @RequiredArgsConstructor
 
@@ -68,11 +70,11 @@ public String showWrite() {
     @AllArgsConstructor
     @Getter
     public static class WriteForm {//클래스 안의 클래스는 static
-        @NotBlank(message = "제목을 입력해주세요.")
-        @Size(min = 2, max = 20, message = "제목은 2자 이상, 20자 이하로 입력가능합니다.")
+        @NotBlank(message = "1-제목을 입력해주세요.")
+        @Size(min = 2, max = 20, message = "2-제목은 2자 이상, 20자 이하로 입력가능합니다.")
         private String title;
-        @NotBlank(message = "내용을 입력해주세요.")
-        @Size(min = 2, max = 20, message = "내용은 2자 이상, 20자 이하로 입력가능합니다.")
+        @NotBlank(message = "3-내용을 입력해주세요.")
+        @Size(min = 2, max = 20, message = "4-내용은 2자 이상, 20자 이하로 입력가능합니다.")
         private String content;
     }
 
@@ -85,10 +87,14 @@ public String showWrite() {
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) { //에러 발생시 등록을 멈추고 폼 화면을 다시 띄워줌, n개의 에러를 받아옴
-            FieldError fieldError = bindingResult.getFieldError();//에러가 여러개 발생하면 그 중 하나를 랜덤으로 가져옴
-
-            String errorFieldName = fieldError.getField();
-            String errorMessage = fieldError.getDefaultMessage();
+            String errorFieldName = "title";
+            String errorMessage = bindingResult
+                    .getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .sorted()
+                    .map(message -> message.split("-", 2)[1])
+                    .collect(Collectors.joining("<br>")); //br로 구분자를 둔다
 
             return getWriteFormHtml(errorFieldName, errorMessage, form.getTitle(), form.getContent());
         }
