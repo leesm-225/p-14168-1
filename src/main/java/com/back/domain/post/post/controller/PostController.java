@@ -23,6 +23,10 @@ import java.util.stream.Collectors;
 public class PostController {
     private final PostService postService;
 
+    @ModelAttribute("siteName")
+    public String siteName() {
+        return "커뮤니티 사이트 A";
+    }
 
     @AllArgsConstructor
     @Getter
@@ -36,7 +40,7 @@ public class PostController {
     }
 
     @GetMapping("/posts/write")
-    public String showWrite(WriteForm form) {
+    public String showWrite(@ModelAttribute("form") WriteForm form) {
         return "post/post/write";
     }
 
@@ -44,7 +48,7 @@ public class PostController {
     @PostMapping("/posts/doWrite")
     @Transactional
     public String write(
-            @Valid WriteForm form,//이 두 줄의 순서는 바뀌면 안됨 @ModelAttribute가 생략되어있다.
+            @ModelAttribute("form") @Valid WriteForm form,//이 두 줄의 순서는 바뀌면 안됨 @ModelAttribute가 생략되어있다.
             BindingResult bindingResult,
             Model model
     ) {
