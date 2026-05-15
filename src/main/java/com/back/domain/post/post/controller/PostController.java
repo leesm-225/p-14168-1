@@ -9,9 +9,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,49 +22,6 @@ import java.util.stream.Collectors;
 
 public class PostController {
     private final PostService postService;
-
-    private String getWriteFormHtml() {
-        return getWriteFormHtml("", "", "", "");
-    }
-
-    private String getWriteFormHtml(
-            String errorFieldName,
-            String errorMessage,
-            String title,
-            String content
-    ) {
-        return """
-                <div style="color: red;">%s</div>
-                
-                <form method="POST" action="doWrite">
-                  <input type="text" name="title" placeholder="제목" value="%s" autofocus>
-                  <br>
-                  <textarea name="content" placeholder="내용">%s</textarea>
-                  <br>
-                  <input type="submit" value="작성">
-                </form>
-                
-               <script>
-                const errorFieldName = '%s';
-                
-                if ( errorFieldName.length > 0 )
-                {
-                    // 현재까지 나온 모든 폼 검색
-                    const forms = document.querySelectorAll('form');
-                    // 그 중에서 가장 마지막 폼 1개 찾기
-                    const lastForm = forms[forms.length - 1];
-                    
-                    lastForm[errorFieldName].focus();
-                }
-                </script>
-                """.formatted(errorMessage, title, content, errorFieldName);
-}
-
-@GetMapping("/posts/write")
-@ResponseBody
-public String showWrite() {
-        return getWriteFormHtml();
-    }
 
 
     @AllArgsConstructor
@@ -78,29 +35,37 @@ public String showWrite() {
         private String content;
     }
 
+    @GetMapping("/posts/write")
+    public String showWrite(WriteForm form) {
+        return "post/post/write";
+    }
+
 
     @PostMapping("/posts/doWrite")
-    @ResponseBody
     @Transactional
     public String write(
-            @Valid WriteForm form,//이 두 줄의 순서는 바뀌면 안됨
-            BindingResult bindingResult
+            @Valid WriteForm form,//이 두 줄의 순서는 바뀌면 안됨 @ModelAttribute가 생략되어있다.
+            BindingResult bindingResult,
+            Model model
     ) {
         if (bindingResult.hasErrors()) { //에러 발생시 등록을 멈추고 폼 화면을 다시 띄워줌, n개의 에러를 받아옴
-            String errorFieldName = "title";
+
             String errorMessage = bindingResult
                     .getFieldErrors()
                     .stream()
-                    .map(FieldError::getDefaultMessage)
+                    .map(fieldError -> (fieldError.getField() + "-" + fieldError.getDefaultMessage()).split("-", 3))
+                    .map(field -> "<!--%s--><li data-error-field-name=\"%s\">%s</li>".formatted(field[1], field[0], field[2]))
                     .sorted()
-                    .map(message -> message.split("-", 2)[1])
-                    .collect(Collectors.joining("<br>")); //br로 구분자를 둔다
+                    .collect(Collectors.joining("\n"));
+            model.addAttribute("errorMessage", errorMessage);
+            return "post/post/write";
 
-            return getWriteFormHtml(errorFieldName, errorMessage, form.getTitle(), form.getContent());
         }
 
         Post post = postService.write(form.getTitle(), form.getContent());
 
-        return "%d번 글이 생성되었습니다.".formatted(post.getId());
+        model.addAttribute("post", post);
+
+        return "post/post/writeDone";
     }
 }
