@@ -31,11 +31,11 @@ public class PostController {
     @AllArgsConstructor
     @Getter
     public static class WriteForm {//클래스 안의 클래스는 static
-        @NotBlank(message = "1-제목을 입력해주세요.")
-        @Size(min = 2, max = 20, message = "2-제목은 2자 이상, 20자 이하로 입력가능합니다.")
+        @NotBlank(message = "01-title-제목을 입력해주세요.")
+        @Size(min = 2, max = 20, message = "02-title-제목은 2자 이상, 20자 이하로 입력가능합니다.")
         private String title;
-        @NotBlank(message = "3-내용을 입력해주세요.")
-        @Size(min = 2, max = 20, message = "4-내용은 2자 이상, 20자 이하로 입력가능합니다.")
+        @NotBlank(message = "03-content-내용을 입력해주세요.")
+        @Size(min = 2, max = 20, message = "04-content-내용은 2자 이상, 20자 이하로 입력가능합니다.")
         private String content;
     }
 
@@ -45,7 +45,7 @@ public class PostController {
     }
 
 
-    @PostMapping("/posts/doWrite")
+    @PostMapping("/posts/write")
     @Transactional
     public String write(
             @ModelAttribute("form") @Valid WriteForm form,//이 두 줄의 순서는 바뀌면 안됨 @ModelAttribute가 생략되어있다.
