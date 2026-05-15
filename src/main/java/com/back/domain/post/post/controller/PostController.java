@@ -54,14 +54,7 @@ public class PostController {
     ) {
         if (bindingResult.hasErrors()) { //에러 발생시 등록을 멈추고 폼 화면을 다시 띄워줌, n개의 에러를 받아옴
 
-            String errorMessage = bindingResult
-                    .getFieldErrors()
-                    .stream()
-                    .map(fieldError -> (fieldError.getField() + "-" + fieldError.getDefaultMessage()).split("-", 3))
-                    .map(field -> "<!--%s--><li data-error-field-name=\"%s\">%s</li>".formatted(field[1], field[0], field[2]))
-                    .sorted()
-                    .collect(Collectors.joining("\n"));
-            model.addAttribute("errorMessage", errorMessage);
+
             return "post/post/write";
 
         }

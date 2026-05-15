@@ -1,10 +1,9 @@
 <h1 th:text="${siteName}"></h1>
 
-<ul style="color: red;">
-    <th:block th:utext="${errorMessage}"></th:block>
-</ul>
-
 <form method="POST" action="doWrite" th:object="${form}">
+    <ul th:if="${#fields.hasAnyErrors()}">
+        <li th:each="err : ${#fields.allErrors().stream().sorted()}" th:text="${err.split('-', 2)[1]}"
+            style="color: red;"/>    </ul>
     <div>
         <label for="title">제목</label><br>
         <input type="text" placeholder="제목" autofocus th:field="*{title}">
@@ -14,16 +13,3 @@
         <textarea placeholder="내용" th:field="*{content}"></textarea>    </div>
     <input type="submit" value="작성">
 </form>
-
-<script>
-    // 현재까지 나온 모든 폼 검색
-    const forms = document.querySelectorAll('form');
-    // 그 중에서 가장 마지막 폼 1개 찾기
-    const lastForm = forms[forms.length - 1];
-
-    const errorFieldName = lastForm.previousElementSibling?.querySelector('li')?.dataset?.errorFieldName || '';
-
-    if (errorFieldName.length > 0) {
-        lastForm[errorFieldName].focus();
-    }
-</script>
