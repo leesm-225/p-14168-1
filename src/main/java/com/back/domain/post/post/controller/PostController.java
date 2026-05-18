@@ -15,7 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -61,6 +61,34 @@ public class PostController {
 
         Post post = postService.write(form.getTitle(), form.getContent());
 
-        return "redirect:/posts/write";
+        return "redirect:/posts/" + post.getId();
+    }
+
+
+    @GetMapping("/posts/{id}")
+    @Transactional(readOnly = true)
+    public String showDetail(
+            @PathVariable int id,
+            Model model
+    ) {
+        Post post = postService.findById(id).get();
+
+        model.addAttribute("post", post);
+
+        return "post/post/detail";
+    }
+
+
+    //다건 조회 그룹
+    @GetMapping("/posts")
+    @Transactional(readOnly = true)
+    @ResponseBody
+    public List<Post> showList() {
+        return postService.findAll();
+    }
+
+    @GetMapping("/posts/")
+    public String redirectToList() {
+        return "redirect:/posts"; //올바른 주소로 가도록 해줌
     }
 }
