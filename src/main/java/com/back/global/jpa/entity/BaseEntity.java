@@ -8,6 +8,8 @@ import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import static lombok.AccessLevel.PROTECTED;
+import static lombok.AccessLevel.PRIVATE;
 
 import java.time.LocalDateTime;
 
@@ -19,9 +21,13 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 public abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private int id;
+    private int id;//class레벨에 달린 getter가 작동
+
     @CreatedDate
+   // @Getter(PRIVATE) //외부, 자식클래스에서 접근 불가
     private LocalDateTime createDate;
+
     @LastModifiedDate
+   // @Getter(PROTECTED)//외부에서 호출 불가능, 자식클래스에서 호출 가능
     private LocalDateTime modifyDate;
 }
