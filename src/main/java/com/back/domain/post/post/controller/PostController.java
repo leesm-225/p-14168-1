@@ -28,42 +28,33 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
 
-    @ModelAttribute("siteName")
-    public String siteName() {
-        return "커뮤니티 사이트 A";
-    }
-
-    @AllArgsConstructor
-    @Getter
-    @Setter
-    public static class ModifyForm {
-        @NotBlank(message = "01-title-제목을 입력해주세요.")
-        @Size(min = 2, max = 20, message = "02-title-제목은 2자 이상, 20자 이하로 입력가능합니다.")
-        private String title;
-        @NotBlank(message = "03-content-내용을 입력해주세요.")
-        @Size(min = 2, max = 20, message = "04-content-내용은 2자 이상, 20자 이하로 입력가능합니다.")
-        private String content;
+    record ModifyForm(
+            @NotBlank(message = "01-title-제목을 입력해주세요.")
+            @Size(min = 2, max = 20, message = "02-title-제목은 2자 이상, 20자 이하로 입력가능합니다.")
+            String title,
+            @NotBlank(message = "03-content-내용을 입력해주세요.")
+            @Size(min = 2, max = 20, message = "04-content-내용은 2자 이상, 20자 이하로 입력가능합니다.")
+            String content
+    ) {
     }
 
     @GetMapping("/posts/{id}/modify")
     @Transactional(readOnly = true)
     public String showModify(
             @PathVariable int id,
-            @ModelAttribute("form") ModifyForm form,
+
             Model model
     ) {
         Post post = postService.findById(id).get();
 
         model.addAttribute("post", post);
-        form.setTitle(post.getTitle());
-        form.setContent(post.getContent());
+        model.addAttribute("form", new ModifyForm(post.getTitle(), post.getContent()));
 
         return "post/post/modify";
     }
 
 
-    @PostMapping("/posts/{id}/modify")
-    @Transactional
+    @PutMapping("/posts/{id}/modify")    @Transactional
     public String modify(
             @PathVariable int id,
             @Valid @ModelAttribute("form") ModifyForm form,
@@ -77,21 +68,20 @@ public class PostController {
             return "post/post/modify";
         }
 
-        postService.modify(post, form.getTitle(), form.getContent());
-
+        postService.modify(post, form.title, form.content);
         return "redirect:/posts/" + post.getId();
     }
 
-    @AllArgsConstructor
-    @Getter
-    public static class WriteForm {//클래스 안의 클래스는 static
-        @NotBlank(message = "01-title-제목을 입력해주세요.")
-        @Size(min = 2, max = 20, message = "02-title-제목은 2자 이상, 20자 이하로 입력가능합니다.")
-        private String title;
-        @NotBlank(message = "03-content-내용을 입력해주세요.")
-        @Size(min = 2, max = 20, message = "04-content-내용은 2자 이상, 20자 이하로 입력가능합니다.")
-        private String content;
+    record WriteForm(
+            @NotBlank(message = "01-title-제목을 입력해주세요.")
+            @Size(min = 2, max = 20, message = "02-title-제목은 2자 이상, 20자 이하로 입력가능합니다.")
+            String title,
+            @NotBlank(message = "03-content-내용을 입력해주세요.")
+            @Size(min = 2, max = 20, message = "04-content-내용은 2자 이상, 20자 이하로 입력가능합니다.")
+            String content
+    ) {
     }
+
 
     @GetMapping("/posts/write")
     public String showWrite(@ModelAttribute("form") WriteForm form) {
@@ -103,8 +93,7 @@ public class PostController {
     @Transactional
     public String write(
             @ModelAttribute("form") @Valid WriteForm form,//이 두 줄의 순서는 바뀌면 안됨 @ModelAttribute가 생략되어있다.
-            BindingResult bindingResult,
-            Model model
+            BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) { //에러 발생시 등록을 멈추고 폼 화면을 다시 띄워줌, n개의 에러를 받아옴
 
@@ -113,8 +102,7 @@ public class PostController {
 
         }
 
-        Post post = postService.write(form.getTitle(), form.getContent());
-
+        Post post = postService.write(form.title, form.content);
         return "redirect:/posts/" + post.getId();
     }
 
@@ -132,18 +120,6 @@ public class PostController {
         return "post/post/detail";
     }
 
-    @GetMapping("/posts")
-    @Transactional(readOnly = true)
-    @ResponseBody
-    public List<Post> showList() { // 데이터 불러오는 함수
-        return postService.findAll();
-    }
-
-    @GetMapping("/posts/listByFetch")
-    public String showListByFetch() { // 템플릿 불러오는 함수
-        return "post/post/listByFetch";
-    }
-    /*
     //다건 조회 그룹
     @GetMapping("/posts")
     @Transactional(readOnly = true)
@@ -160,5 +136,5 @@ public class PostController {
         return "redirect:/posts"; //올바른 주소로 가도록 해줌
     }
 
-     */
+
 }

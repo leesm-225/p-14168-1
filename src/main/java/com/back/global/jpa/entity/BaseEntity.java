@@ -12,6 +12,7 @@ import static lombok.AccessLevel.PROTECTED;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -30,4 +31,17 @@ public abstract class BaseEntity {
     @LastModifiedDate
    // @Getter(PROTECTED)//외부에서 호출 불가능, 자식클래스에서 호출 가능
     private LocalDateTime modifyDate;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BaseEntity that = (BaseEntity) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }

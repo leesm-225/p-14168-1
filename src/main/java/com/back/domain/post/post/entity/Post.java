@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 import static jakarta.persistence.CascadeType.PERSIST;
@@ -22,9 +23,8 @@ public class Post extends BaseEntity {
     private String title;
     private String content;
 
-    @OneToMany(mappedBy = "post", fetch = LAZY, cascade = {PERSIST, REMOVE})
-    private List<PostComment> comments = new ArrayList<>();
-
+    @OneToMany(mappedBy = "post", fetch = LAZY, cascade = {PERSIST, REMOVE}, orphanRemoval = true)    private List<PostComment> comments = new ArrayList<>();
+    //select * from post_comment where post_id = 1
 
     public Post(String title, String content) {
         this.title = title;
@@ -41,5 +41,18 @@ public class Post extends BaseEntity {
         comments.add(postComment);
 
         return postComment;
+    }
+
+    public Optional<PostComment> findCommentById(int id) {
+        return comments
+                .stream()
+                .filter(comment -> comment.getId() == id)
+                .findFirst();
+    }
+
+    public boolean deleteComment(PostComment postComment) {
+        if (postComment == null) return false;
+
+        return comments.remove(postComment);
     }
 }

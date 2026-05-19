@@ -12,6 +12,10 @@ spring:
   datasource:
     hikari:
       auto-commit: false
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
   jpa:
     show-sql: true
     hibernate:

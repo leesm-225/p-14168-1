@@ -1,18 +1,24 @@
-<h1 th:text="${siteName}"></h1>
+<html layout:decorate="~{layout}">
 
-<form method="POST" th:object="${form}">
-    <div th:replace="~{form_errors :: formErrorsFragment}"></div>
-    <div>
-        <label for="title">제목</label><br>
-        <input type="text" placeholder="제목" autofocus th:field="*{title}">
-    </div>
-    <div>
-        <label for="content">내용</label><br>
-        <textarea placeholder="내용" th:field="*{content}"></textarea>    </div>
-    <input type="submit" value="작성">
+<head>
+    <title>글 작성</title>
+</head>
 
-</form>
 
-<div>
-    <a href=".">글 목록</a>
+<div layout:fragment="content">
+
+    <form method="POST" th:object="${form}">
+        <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+        <div>
+            <label for="title">제목</label><br>
+            <input type="text" placeholder="제목" th:field="*{title}" autofocus>
+        </div>
+        <div>
+            <label for="content">내용</label><br>
+            <textarea placeholder="내용" th:field="*{content}"></textarea>
+        </div>
+        <input type="submit" value="작성">
+    </form>
 </div>
+
+</html>
